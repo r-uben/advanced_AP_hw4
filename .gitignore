@@ -1,0 +1,5 @@
+*.dump
+*.jnl
+*.asv
+*.aux
+*.log
