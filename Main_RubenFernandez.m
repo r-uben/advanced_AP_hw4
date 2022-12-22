@@ -72,7 +72,7 @@ for ppp=1:K
     pdbar = log(exp(-rfbar+mu)/(1-exp(-rfbar+mu)));
     ubar = log((1-delta)/(1-delta*exp((1-1/psi)*mu)))*(1/(1-1/psi));
     CEbar = exp((ubar+mu)*(1-gamma));
-    var_names       = ["dc" "dd" "dy" "f"   "CE" "ce"        "m"  "pd" "rd" "rf"   "u" "x"];
+    var_names       = ["dc" "dd" "dy" "f" "CE" "ce" "m" "pd" "rd" "rf" "u" "x"];
     var_bar_values  = [mu   mu     0   fbar CEbar log(CEbar) mbar pdbar rfbar rfbar  ubar 0];
     var_names = add_foreign(var_names);
     var_bar_values = [var_bar_values var_bar_values];
@@ -92,26 +92,16 @@ for ppp=1:K
     % Model
     fprintf(fid, "// Model\n");
     fprintf(fid, "model; \n");
+    % Model: Home and foreign good-endowments
+    equations("dy")     = "dy   = mu+x(-1) + eps_c +rho_vecm*EC;";
+    equations("dyf")    = "dyf  = mu+xf(-1)+ eps_cf-rho_vecm*EC;";
+    equations("x")      = "x    = rho*x(-1) +eps_x;";
+    equations("xf")     = "xf   = rho*xf(-1)+eps_xf;";
     % Model: Error correction
     equations("EC")     = "EC   = (1-2*rho_vecm)*EC(-1)+xf(-1)+eps_cf-(x(-1)+eps_c);";
     % Model: Dividends cash flow
     equations("dd")     = "dd   = mu+lever*(dc-mu);";
     equations("ddf")    = "ddf  = mu+lever*(dcf-mu);";
-    % Model: SDFs & returns
-    equations("m")  = "exp(m) = delta*exp(-dc/psi)*exp((u+dc)*(1/psi-gamma))/exp(ce(-1)*(1-theta));";
-    equations("mf") = "exp(mf) = delta*exp(-dcf/psi)*exp((uf+dcf)*(1/psi-gamma))/exp(cef(-1)*(1-theta));";
-    equations("rf") = "1/exp(rf)  = exp(m(+1));";
-    equations("rff")= "1/exp(rff) = exp(mf(+1));";
-    equations("extra1")  = "1           = exp(m(+1)+rd(+1));";
-    equations("rd") = "exp(rd)    = (1+exp(pd))/exp(pd(-1))*exp(dd);";
-    equations("rdex") = "rdex       = rd-rf;";
-    equations("extra2")  = "1 = exp(mf(+1)+rdf(+1));";
-    equations("rdf")= "exp(rdf)   = (1+exp(pdf))/exp(pdf(-1))*exp(ddf);";
-    % Model: Home and foreign good-endowments
-    equations("dy")     = "dy   = mu+x(-1) +rho_vecm*EC+eps_c;";
-    equations("dyf")    = "dyf  = mu+xf(-1)+rho_vecm*EC+eps_cf;";
-    equations("x")      = "x    = rho*x(-1) +eps_x;";
-    equations("xf")     = "xf   = rho*xf(-1)+eps_xf;";
     % Model: Home- and Foreign-consumer share of endowments
     equations("f")      = "f   = log(1 + 1/(kappa*exp(s)))*(-alpha)+log(1+kappa/exp(s))*(alpha-1);";
     equations("ff")     = "ff  = (alpha-1)*log(1+kappa*exp(s))-alpha*log(1+exp(s)/kappa);";
@@ -120,14 +110,24 @@ for ppp=1:K
     equations("dcf")    = "dcf = ff-ff(-1)+(1-alpha)*dy+alpha*dyf;";
     % Model: Home- and Foreign-certaint equivalent and utility
     equations("u")  = "exp((1-1/psi)*u)  = (1-delta)+delta*(CE^theta);";
-    equations("uf") = "exp((1-1/psi)*uf)  = (1-delta)+delta*(CE^theta);";
+    equations("uf") = "exp((1-1/psi)*uf)  = (1-delta)+delta*(CEf^theta);";
     equations("CE") = "CE = exp((u(+1)+dc(+1))*(1-gamma));";
-    equations("CEf")= "CEf = exp((uf(+1)+dcf(+1))*(1-gamma));";
     equations("ce") = "ce = log(CE);";
+    equations("CEf")= "CEf = exp((uf(+1)+dcf(+1))*(1-gamma));";
     equations("cef")= "cef = log(CEf);";
     equations("s")  = "s = s(-1) + m - mf + dc - dcf;";
     equations("swc")= "swc = exp(s) / (1 + exp(s));";
     equations("de") = "de = mf - m;";
+    % Model: SDFs & returns
+    equations("m")  =      "exp(m)     = delta*exp(-dc/psi)*exp((u+dc)*(1/psi-gamma))/exp(ce(-1)*(1-theta));";
+    equations("mf") =      "exp(mf)    = delta*exp(-dcf/psi)*exp((uf+dcf)*(1/psi-gamma))/exp(cef(-1)*(1-theta));";
+    equations("rf") =      "1/exp(rf)  = exp(m(+1));";
+    equations("rff")=      "1/exp(rff) = exp(mf(+1));";
+    equations("extra1") =  "1     = exp(m(+1)+rd(+1));";
+    equations("rd") =       "exp(rd)    = (1+exp(pd))/exp(pd(-1))*exp(dd);";
+    equations("rdex") = "rdex       = rd-rf;";
+    equations("extra2")  = "1 = exp(mf(+1)+rdf(+1));";
+    equations("rdf")    = "exp(rdf) = (1+exp(pdf))/exp(pdf(-1))*exp(ddf);";
     mod.model(fid, equations);
     fprintf(fid, "end;\n\n");
     % Initial Values
