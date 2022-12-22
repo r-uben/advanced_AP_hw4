@@ -61,23 +61,27 @@ for ppp=1:K
     %% Writing the mod file
     mod = modFileGenerator;
     disp(['Calibr: ' num2str(cal)]);
-    disp('Writing and solving the mod...')
     fid = fopen([model '.mod'], 'w+');
     mod.calibration(fid);
     % Variables
     fprintf(fid, '// Endogenous and exogenous variables \n');
+    % Variables: Initial values
+    global fbar mbar rfbar pdbar ubar CEbar cebar xbar
+    xbar = 0;
     fbar = -alpha*log(1+1/kappa)+(alpha-1)*log(1+kappa);
     mbar = log(delta)-mu/psi;
     rfbar = -   mbar;
     pdbar = log(exp(-rfbar+mu)/(1-exp(-rfbar+mu)));
     ubar = log((1-delta)/(1-delta*exp((1-1/psi)*mu)))*(1/(1-1/psi));
     CEbar = exp((ubar+mu)*(1-gamma));
+    cebar = log(CEbar);
+    % Variables: Names
     var_names       = ["dc" "dd" "dy" "f" "CE" "ce" "m" "pd" "rd" "rf" "u" "x"];
-    var_bar_values  = [mu   mu     0   fbar CEbar log(CEbar) mbar pdbar rfbar rfbar  ubar 0];
+    var_bar_values  = [mu   mu   mu   fbar CEbar cebar mbar pdbar rfbar rfbar  ubar xbar];
     var_names = add_foreign(var_names);
     var_bar_values = [var_bar_values var_bar_values];
     var_names = [var_names ["de" "EC" "rdex" "s" "swc"]];
-    var_bar_values = [var_bar_values [0 0 0 0 0.5]];
+    var_bar_values = [var_bar_values [0 0 0 0 1/2]];
     initial_values = dictionary(var_names, var_bar_values);
     
     exo_vars      = ["eps_c" "eps_x"];
@@ -137,9 +141,9 @@ for ppp=1:K
     fprintf(fid, "end;\n\n");
     % Variance-Covariance matrix
     fprintf(fid,'vcov = [%e %e 0 0\n', [sigma_short^2 sigma_short^2*rho_short]);
-    fprintf(fid,'%e %e 0 0\n', [sigma_short^2*rho_short, sigma_short^2]);
-    fprintf(fid,'0 0 %e %e\n', [sigma_long^2, sigma_long^2*rho_long]);
-    fprintf(fid,'0 0 %e %e];  \n', [sigma_long^2*rho_long, sigma_long^2]);
+    fprintf(fid,'%e %e 0 0\n', [sigma_short^2*rho_short sigma_short^2]);
+    fprintf(fid,'0 0 %e %e\n', [sigma_long^2 sigma_long^2*rho_long]);
+    fprintf(fid,'0 0 %e %e];  \n', [sigma_long^2*rho_long sigma_long^2]);
     fprintf(fid,'order   = 3;  \n');
     fclose(fid);
     
@@ -147,7 +151,6 @@ for ppp=1:K
     display(model)
     eval(sprintf('!dpp/dynare++ --per 15 --sim 3 --ss-tol 1e-7 %s.mod',model));
     eval(sprintf('load %s.mat',model));
-    disp('Solving: done!')
 
 
 
