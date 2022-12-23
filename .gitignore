@@ -4,7 +4,10 @@
 *.aux
 *.log
 *.synctex.gz
-*.Model1_f.m
-*.Model1_ff.m
-*.Model1001_f.m
-*.Model1001_ff.m
+
+Model1.mat
+Model1_f.m
+Model1_ff.m
+Model1011.mat
+Model1001_f.m
+Model1001_ff.m
