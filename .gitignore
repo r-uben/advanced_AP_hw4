@@ -3,3 +3,8 @@
 *.asv
 *.aux
 *.log
+*.synctex.gz
+*.Model1_f.m
+*.Model1_ff.m
+*.Model1001_f.m
+*.Model1001_ff.m

@@ -72,16 +72,16 @@ for ppp=1:length(Calibration_V)
         % TFP Shock         %
         
         % SHORT-RUN SHOCK to Home
-        PATH = [ 0 1*sqrt(dyn_vcov_exo(1,1))*ones(1,1) zeros(1,400-1); zeros(1,401); zeros(1,401); zeros(1,401)];
-        tempor = dynare_simul([filename0 '.mat'],PATH);
+        shocks = [ 0 1*sqrt(dyn_vcov_exo(1,1))*ones(1,1) zeros(1,400-1); zeros(1,401); zeros(1,401); zeros(1,401)];
+        tempor = dynare_simul([filename0 '.mat'],shocks);
         dyn_irfp_ec_mean = tempor(:,2:401)-tempor(:,1)*ones(1,400);
-        tempor = dynare_simul([filename0 '.mat'],-PATH);
+        tempor = dynare_simul([filename0 '.mat'],-shocks);
         dyn_irfm_ec_mean = tempor(:,2:401)-tempor(:,1)*ones(1,400);
         % LONG-RUN SHOCK to Home
         PATH = [zeros(1,401); zeros(1,401); 0 1*sqrt(dyn_vcov_exo(3,3))*ones(1,1) zeros(1,400-1); zeros(1,401)];
         tempor = dynare_simul([filename0 '.mat'],PATH);
         dyn_irfp_ex_mean = tempor(:,2:401)-tempor(:,1)*ones(1,400);
-        tempor = dynare_simul([filename0 '.mat'],-PATH);
+        tempor = dynare_simul([filename0 '.mat'],-shocks);
         dyn_irfm_ex_mean = tempor(:,2:401)-tempor(:,1)*ones(1,400);
         
         %% Figures 2 & 5

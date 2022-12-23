@@ -2,7 +2,7 @@
 
 // Endogenous and exogenous variables 
 var    dc dd dy f CE ce m pd rd rf u x dcf ddf dyf ff CEf cef mf pdf rdf rff uf xf de EC rdex s swc ;
-varexo    eps_c eps_x eps_cf eps_xf ;
+varexo    eps_c eps_cf eps_x eps_xf ;
 
 // Parameters
 parameters   gamma psi delta mu rho rho_vecm alpha kappa theta lever ;
@@ -18,7 +18,7 @@ kappa = 3.233333e+01;
 theta = -4.761905e-02; 
 lever = 1.010000e+00; 
 
-// Model
+// model
 model; 
 dy=mu+x(-1)+eps_c+rho_vecm*EC; 
 dyf=mu+xf(-1)+eps_cf-rho_vecm*EC; 
@@ -27,8 +27,8 @@ xf=rho*xf(-1)+eps_xf;
 EC=(1-2*rho_vecm)*EC(-1)+xf(-1)+eps_cf-(x(-1)+eps_c); 
 dd=mu+lever*(dc-mu); 
 ddf=mu+lever*(dcf-mu); 
-f=log(1+1/(kappa*exp(s)))*(-alpha)+log(1+kappa/exp(s))*(alpha-1); 
-ff=(alpha-1)*log(1+kappa*exp(s))-alpha*log(1+exp(s)/kappa); 
+f=-(alpha*log(1+exp(-s)/kappa)+(1-alpha)*log(1+kappa*exp(-s))); 
+ff=-(alpha*log(1+exp(s)/kappa)+(1-alpha)*log(1+kappa*exp(s))); 
 dc=f-f(-1)+alpha*dy+(1-alpha)*dyf; 
 dcf=ff-ff(-1)+(1-alpha)*dy+alpha*dyf; 
 exp((1-1/psi)*u)=(1-delta)+delta*(CE^theta); 
@@ -37,9 +37,9 @@ CE=exp((u(+1)+dc(+1))*(1-gamma));
 ce=log(CE); 
 CEf=exp((uf(+1)+dcf(+1))*(1-gamma)); 
 cef=log(CEf); 
-s=s(-1)+m-mf+dc-dcf; 
+exp(s)=exp(s(-1)+m-mf+dc-dcf); 
 swc=exp(s)/(1+exp(s)); 
-de=mf-m; 
+exp(de)=exp(mf-m); 
 exp(m)=delta*exp(-dc/psi)*exp((u+dc)*(1/psi-gamma))/exp(ce(-1)*(1-theta)); 
 exp(mf)=delta*exp(-dcf/psi)*exp((uf+dcf)*(1/psi-gamma))/exp(cef(-1)*(1-theta)); 
 1/exp(rf)=exp(m(+1)); 
